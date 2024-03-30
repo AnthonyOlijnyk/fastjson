@@ -192,6 +192,40 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
         return list.set(index, element);
     }
+    
+    public Object mutatedSetIndex(int index, Object element) {
+        if (index == 0) {
+            list.add(element);
+            return null;
+        }
+
+        if (list.size() <= index) {
+            for (int i = list.size(); i < index; ++i) {
+                list.add(null);
+            }
+            list.add(element);
+            return null;
+        }
+
+        return list.set(index, element);
+    }
+    
+    public Object mutatedSetSizeComparisonFlip(int index, Object element) {
+        if (index == -1) {
+            list.add(element);
+            return null;
+        }
+
+        if (list.size() > index) {
+            for (int i = list.size(); i < index; ++i) {
+                list.add(null);
+            }
+            list.add(element);
+            return null;
+        }
+
+        return list.set(index, element);
+    }
 
     public JSONArray fluentSet(int index, Object element) {
         set(index, element);
@@ -468,6 +502,30 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         }
 
         if (obj instanceof JSONArray) {
+            return this.list.equals(((JSONArray) obj).list);
+        }
+
+        return this.list.equals(obj);
+    }
+    
+    public boolean mutatedEqualsThisNotEqual(Object obj) {
+        if (this != obj) {
+            return true;
+        }
+
+        if (obj instanceof JSONArray) {
+            return this.list.equals(((JSONArray) obj).list);
+        }
+
+        return this.list.equals(obj);
+    }
+    
+    public boolean mutatedEqualsNotInstanceOf(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof JSONArray)) {
             return this.list.equals(((JSONArray) obj).list);
         }
 
