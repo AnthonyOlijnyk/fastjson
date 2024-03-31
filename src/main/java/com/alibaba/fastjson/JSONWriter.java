@@ -18,9 +18,10 @@ public class JSONWriter implements Closeable, Flushable {
 
     private JSONStreamContext context;
 
-    public JSONWriter(Writer out){
+    public JSONWriter(Writer out, JSONStreamContext context){
         writer = new SerializeWriter(out);
         serializer = new JSONSerializer(writer);
+        this.context = context;
     }
 
     public void config(SerializerFeature feature, boolean state) {
@@ -71,7 +72,7 @@ public class JSONWriter implements Closeable, Flushable {
         writer.write('[');
     }
 
-    private void beginStructure() {
+    public void beginStructure() {
         final int state = context.state;
         switch (context.state) {
             case PropertyKey:
@@ -88,13 +89,49 @@ public class JSONWriter implements Closeable, Flushable {
                 throw new JSONException("illegal state : " + state);
         }
     }
+    
+    public void mutatedBeginStructureSwitchTopTwo() {
+        final int state = context.state;
+        switch (context.state) {
+            case ArrayValue:
+                writer.write(':');
+                break;
+            case PropertyKey:
+                writer.write(',');
+                break;
+            case StartObject:
+                break;
+            case StartArray:
+                break;
+            default:
+                throw new JSONException("illegal state : " + state);
+        }
+    }
+    
+    public void mutatedBeginStructureSwitchMiddleTwo() {
+        final int state = context.state;
+        switch (context.state) {
+            case ArrayValue:
+                writer.write(':');
+                break;
+            case PropertyKey:
+                writer.write(',');
+                break;
+            case StartArray:
+                break;
+            case StartObject:
+                break;
+            default:
+                throw new JSONException("illegal state : " + state);
+        }
+    }
 
     public void endArray() {
         writer.write(']');
         endStructure();
     }
 
-    private void endStructure() {
+    public void endStructure() {
         context = context.parent;
 
         if (context == null) {
@@ -107,6 +144,62 @@ public class JSONWriter implements Closeable, Flushable {
                 newState = PropertyValue;
                 break;
             case StartArray:
+                newState = ArrayValue;
+                break;
+            case ArrayValue:
+                break;
+            case StartObject:
+                newState = PropertyKey;
+                break;
+            default:
+                break;
+        }
+        if (newState != -1) {
+            context.state = newState;
+        }
+    }
+    
+    public void mutatedEndStructureSwapEquals() {
+        context = context.parent;
+
+        if (context != null) {
+            return;
+        }
+        
+        int newState = -1;
+        switch (context.state) {
+            case PropertyKey:
+                newState = PropertyValue;
+                break;
+            case StartArray:
+                newState = ArrayValue;
+                break;
+            case ArrayValue:
+                break;
+            case StartObject:
+                newState = PropertyKey;
+                break;
+            default:
+                break;
+        }
+        if (newState == -1) {
+            context.state = newState;
+        }
+    }
+    
+    public void mutatedEndStructureSwapTopCases() {
+        context = context.parent;
+
+        if (context == null) {
+            return;
+        }
+        
+        int newState = -1;
+        switch (context.state) {
+            case StartArray:
+                newState = PropertyValue;
+                break;
+            case PropertyKey:
                 newState = ArrayValue;
                 break;
             case ArrayValue:
@@ -200,5 +293,13 @@ public class JSONWriter implements Closeable, Flushable {
     @Deprecated
     public void writeEndArray() {
         endArray();
+    }
+    
+    public Writer getWriter() {
+    	return writer;
+    }
+    
+    public JSONStreamContext getContext() {
+    	return context;
     }
 }

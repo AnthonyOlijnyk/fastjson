@@ -1,6 +1,6 @@
 package com.alibaba.fastjson;
 
-class JSONStreamContext {
+public class JSONStreamContext {
 
     final static int                  StartObject   = 1001;
     final static int                  PropertyKey   = 1002;
@@ -15,5 +15,9 @@ class JSONStreamContext {
     public JSONStreamContext(JSONStreamContext parent, int state){
         this.parent = parent;
         this.state = state;
+    }
+    
+    public int getState() {
+    	return state;
     }
 }
